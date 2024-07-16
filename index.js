@@ -1,5 +1,6 @@
 import * as Carousel from "./Carousel.js";
 import axios from "axios";
+import dotenv from "dotenv"
 
 // The breed selection input element.
 const breedSelect = document.getElementById("breedSelect");
@@ -9,9 +10,14 @@ const infoDump = document.getElementById("infoDump");
 const progressBar = document.getElementById("progressBar");
 // The get favourites button element.
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
-
-// Step 0: Store your API key here for reference and easy access.
-const API_KEY = "";
+// set up API key
+const API_KEY = process.env.API_KEY
+// base URL
+const baseURL = 'https://api.thecatapi.com';
+// header
+const header = {
+  'x-api-key': API_KEY
+};
 
 /**
  * 1. Create an async function "initialLoad" that does the following:
@@ -21,6 +27,23 @@ const API_KEY = "";
  *  - Each option should display text equal to the name of the breed.
  * This function should execute immediately.
  */
+async function initialLoad() {
+  try {
+    const response = await fetch('https://api.thecatapi.com/v1/breeds');
+    const breedData = response.json();
+    const breedSelect = document.getElementById('breedSelect');
+    breedData.forEach(breed => {
+      const option = document.createElement('option');
+      option.value = breed.id;
+      option.textContent = breed.name;
+      breedSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Error: ', error);
+  }
+}
+initialLoad();
+
 
 /**
  * 2. Create an event handler for breedSelect that does the following:
@@ -49,6 +72,18 @@ const API_KEY = "";
  *   by setting a default header with your API key so that you do not have to
  *   send it manually with all of your requests! You can also set a default base URL!
  */
+
+axios.get((baseURL + "/v1/breeds"), { header })
+  .then(response => {
+    // Handle response
+    console.log(response.data);
+  })
+  .catch(error => {
+    // Handle error
+    console.error('Error fetching data:', error);
+  });
+
+
 /**
  * 5. Add axios interceptors to log the time between request and response to the console.
  * - Hint: you already have access to code that does this!
