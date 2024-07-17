@@ -1,20 +1,27 @@
+// imports
 import * as Carousel from "./Carousel.js";
 import axios from "axios";
 import dotenv from "dotenv"
 
-// The breed selection input element.
+// load environment variables from .env into process.env
+dotenv.config();
+
+// target the id of the input element 
 const breedSelect = document.getElementById("breedSelect");
-// The information section div element.
+// target the information section
 const infoDump = document.getElementById("infoDump");
-// The progress bar div element.
-const progressBar = document.getElementById("progressBar");
-// The get favourites button element.
+// target the progress bar div element
+const progressBar = documeelementnt.getElementById("progressBar");
+// target the get favourites button+
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
-// set up API key
+
+// set up API key, which is referencing a hidden file for security reasons
 const API_KEY = process.env.API_KEY
-// base URL
+
+// base URL of the API
 const baseURL = 'https://api.thecatapi.com';
-// header
+
+// set up the http header, which is a key-value pair that provides additional information about the request or the response. Used to transmit various types of metadata between the client and the server.
 const header = {
   'x-api-key': API_KEY
 };
@@ -30,7 +37,7 @@ const header = {
 async function initialLoad() {
   try {
     const response = await fetch('https://api.thecatapi.com/v1/breeds');
-    const breedData = response.json();
+    const breedData = await response.json();
     const breedSelect = document.getElementById('breedSelect');
     breedData.forEach(breed => {
       const option = document.createElement('option');
@@ -59,6 +66,15 @@ initialLoad();
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
+
+function handleBreedSelect() {
+  const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids={breed.id}`)
+}
+handleBreedSelect();
+
+
+
+
 
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
