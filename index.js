@@ -1,22 +1,26 @@
+//------------------------- BEGIN INDEX.JS ------------------------- 
+
 // imports
-import * as Carousel from "./Carousel.js";
+import Carousel from "./Carousel.js";
 import axios from "axios";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 
 // load environment variables from .env into process.env
 dotenv.config();
 
+//------------------------- TARGET ELEMENTS IN DOM------------------------- 
 // target the id of the input element 
 const breedSelect = document.getElementById("breedSelect");
 // target the information section
 const infoDump = document.getElementById("infoDump");
 // target the progress bar div element
-const progressBar = documeelementnt.getElementById("progressBar");
+const progressBar = document.getElementById("progressBar");
 // target the get favourites button+
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 
+//------------------------- API AND HEADER INFO ------------------------- 
 // set up API key, which is referencing a hidden file for security reasons
-const API_KEY = process.env.API_KEY
+const API_KEY = process.env.API_KEY;
 
 // base URL of the API
 const baseURL = 'https://api.thecatapi.com';
@@ -26,6 +30,7 @@ const header = {
   'x-api-key': API_KEY
 };
 
+//-------------------- GET LIST OF BREEDS INTO INPUT-----------------------
 /**
  * 1. Create an async function "initialLoad" that does the following:
  * - Retrieve a list of breeds from the cat API using fetch().
@@ -49,9 +54,11 @@ async function initialLoad() {
     console.error('Error: ', error);
   }
 }
-initialLoad();
+document.addEventListener('DOMContentLoaded', () => {
+  initialLoad();
+})
 
-
+//--------------------- GET INFO ABOUT SPECIFIC BREED ----------------------- 
 /**
  * 2. Create an event handler for breedSelect that does the following:
  * - Retrieve information on the selected breed from the cat API using fetch().
@@ -67,18 +74,47 @@ initialLoad();
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
 
-function handleBreedSelect() {
-  const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids={breed.id}`)
+async function handleBreedSelect() {
+  try {
+    const breedId = breedSelect.value;
+    // // clear existing carousel items
+    if (Carousel) {
+       Carousel.clear();
+    }
+    // fetch images based on breed ID
+    const response = await fetch(`${baseURL}/v1/images/search?breed_id=${breedId}&limit=10`, { headers: header });
+    // parse json response
+    const imageData = await response.json();
+    // update carousel with new images
+    imageData.forEach(image => {
+      const carouselItem = Carousel.createCarouselItem(image.url, image.breed, image.id);
+      Carousel.appendCarousel(carouselItem);
+    });
+    // update infoDump with breed information
+    const breedInfo = await fetch(`${baseURL}/v1/breeds/${breedId}`, { headers: header});
+
+    const breedData = await breedInfo.json();
+
+    // Create HTML structure for breed infomation
+    const infoDump = document.getElementById('infoDump');
+    infoDump.innerHTML = `
+      <h2>${breedData.name}</h2>
+      <p>${breedData.description}</p>
+      <p>Temperament: ${breedData.temperament}</p>
+      <p>Origin: ${breedData.origin}</p>
+    `
+  } catch(error) {
+    console.error("Error in selection:", error);
+  }
 }
-handleBreedSelect();
-
-
-
+breedSelect.addEventListener('change', handleBreedSelect);
 
 
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
  */
+
+//------------------- REFACTOR CODE FROM FETCH TO AXIOS --------------------- 
 /**
  * 4. Change all of your fetch() functions to axios!
  * - axios has already been imported for you within index.js.
