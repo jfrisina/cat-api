@@ -1,9 +1,10 @@
 //------------------------- BEGIN INDEX.JS ------------------------- 
 
 // imports
-import Carousel from "./Carousel.js";
+import Carousel from "./Carousel";
 import axios from "axios";
 import dotenv from "dotenv";
+import cors from "cors";
 
 // load environment variables from .env into process.env
 dotenv.config();
@@ -11,10 +12,13 @@ dotenv.config();
 //------------------------- TARGET ELEMENTS IN DOM------------------------- 
 // target the id of the input element 
 const breedSelect = document.getElementById("breedSelect");
+
 // target the information section
 const infoDump = document.getElementById("infoDump");
+
 // target the progress bar div element
 const progressBar = document.getElementById("progressBar");
+
 // target the get favourites button+
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 
@@ -23,7 +27,7 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 const API_KEY = process.env.API_KEY;
 
 // base URL of the API
-const baseURL = 'https://api.thecatapi.com';
+const baseURL = '/api';
 
 // set up the http header, which is a key-value pair that provides additional information about the request or the response. Used to transmit various types of metadata between the client and the server.
 const header = {
@@ -77,23 +81,29 @@ document.addEventListener('DOMContentLoaded', () => {
 async function handleBreedSelect() {
   try {
     const breedId = breedSelect.value;
+
     // // clear existing carousel items
     if (Carousel) {
        Carousel.clear();
     }
+
     // fetch images based on breed ID
     const response = await fetch(`${baseURL}/v1/images/search?breed_id=${breedId}&limit=10`, { headers: header });
+
     // parse json response
     const imageData = await response.json();
+
     // update carousel with new images
     imageData.forEach(image => {
+      console.log("hi")
       const carouselItem = Carousel.createCarouselItem(image.url, image.breed, image.id);
       Carousel.appendCarousel(carouselItem);
     });
-    // update infoDump with breed information
-    const breedInfo = await fetch(`${baseURL}/v1/breeds/${breedId}`, { headers: header});
 
-    const breedData = await breedInfo.json();
+    // update infoDump with breed information
+    const breedInfoResponse = await fetch(`${baseURL}/v1/breeds/${breedId}`, { headers: header});
+
+    const breedData = await breedInfoResponse.json();
 
     // Create HTML structure for breed infomation
     const infoDump = document.getElementById('infoDump');
@@ -128,7 +138,7 @@ breedSelect.addEventListener('change', handleBreedSelect);
 axios.get((baseURL + "/v1/breeds"), { header })
   .then(response => {
     // Handle response
-    console.log(response.data);
+    // console.log(response.data);
   })
   .catch(error => {
     // Handle error
