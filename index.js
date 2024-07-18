@@ -46,8 +46,12 @@ const header = {
 async function initialLoad() {
   try {
     const response = await fetch('https://api.thecatapi.com/v1/breeds');
+    console.log(response)
+        // error troubleshooting
+    if (!response.ok) {
+      throw new Error(`initial load fetch not working: ${response.status} ${response.statusText}`);
+    }
     const breedData = await response.json();
-    const breedSelect = document.getElementById('breedSelect');
     breedData.forEach(breed => {
       const option = document.createElement('option');
       option.value = breed.id;
@@ -78,24 +82,30 @@ document.addEventListener('DOMContentLoaded', () => {
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
 
-async function handleBreedSelect() {
+async function handleBreedSelection() {
   try {
     const breedId = breedSelect.value;
 
     // // clear existing carousel items
-    if (Carousel) {
+    if (Carousel && typeof Carousel.clear === 'function') {
        Carousel.clear();
     }
 
     // fetch images based on breed ID
     const response = await fetch(`${baseURL}/v1/images/search?breed_id=${breedId}&limit=10`, { headers: header });
+    
+    console.log(response)
+    
+    // error troubleshooting
+    if (!response.ok) {
+      throw new Error(`breed ID fetch not working: ${response.status} ${response.statusText}`);
+    }
 
     // parse json response
     const imageData = await response.json();
 
     // update carousel with new images
     imageData.forEach(image => {
-      console.log("hi")
       const carouselItem = Carousel.createCarouselItem(image.url, image.breed, image.id);
       Carousel.appendCarousel(carouselItem);
     });
@@ -103,10 +113,15 @@ async function handleBreedSelect() {
     // update infoDump with breed information
     const breedInfoResponse = await fetch(`${baseURL}/v1/breeds/${breedId}`, { headers: header});
 
+    console.log(breedInfoResponse)
+    
+    // error troubleshooting
+    if (!breedInfoResponse.ok) {
+      throw new Error(`breed info response fetch not working: ${response.status} ${response.statusText}`);
+    }
     const breedData = await breedInfoResponse.json();
 
     // Create HTML structure for breed infomation
-    const infoDump = document.getElementById('infoDump');
     infoDump.innerHTML = `
       <h2>${breedData.name}</h2>
       <p>${breedData.description}</p>
@@ -117,7 +132,7 @@ async function handleBreedSelect() {
     console.error("Error in selection:", error);
   }
 }
-breedSelect.addEventListener('change', handleBreedSelect);
+breedSelect.addEventListener('change', handleBreedSelection);
 
 
 /**

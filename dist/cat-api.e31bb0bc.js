@@ -54667,7 +54667,7 @@ function initialLoad() {
 }
 function _initialLoad() {
   _initialLoad = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var response, breedData, _breedSelect;
+    var response, breedData;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -54676,28 +54676,35 @@ function _initialLoad() {
           return fetch('https://api.thecatapi.com/v1/breeds');
         case 3:
           response = _context.sent;
-          _context.next = 6;
+          console.log(response);
+          // error troubleshooting
+          if (response.ok) {
+            _context.next = 7;
+            break;
+          }
+          throw new Error("initial load fetch not working: ".concat(response.status, " ").concat(response.statusText));
+        case 7:
+          _context.next = 9;
           return response.json();
-        case 6:
+        case 9:
           breedData = _context.sent;
-          _breedSelect = document.getElementById('breedSelect');
           breedData.forEach(function (breed) {
             var option = document.createElement('option');
             option.value = breed.id;
             option.textContent = breed.name;
-            _breedSelect.appendChild(option);
+            breedSelect.appendChild(option);
           });
-          _context.next = 14;
+          _context.next = 16;
           break;
-        case 11:
-          _context.prev = 11;
+        case 13:
+          _context.prev = 13;
           _context.t0 = _context["catch"](0);
           console.error('Error: ', _context.t0);
-        case 14:
+        case 16:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 11]]);
+    }, _callee, null, [[0, 13]]);
   }));
   return _initialLoad.apply(this, arguments);
 }
@@ -54720,18 +54727,18 @@ document.addEventListener('DOMContentLoaded', function () {
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
-function handleBreedSelect() {
-  return _handleBreedSelect.apply(this, arguments);
+function handleBreedSelection() {
+  return _handleBreedSelection.apply(this, arguments);
 }
-function _handleBreedSelect() {
-  _handleBreedSelect = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-    var breedId, response, imageData, breedInfoResponse, breedData, _infoDump;
+function _handleBreedSelection() {
+  _handleBreedSelection = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+    var breedId, response, imageData, breedInfoResponse, breedData;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
           breedId = breedSelect.value; // // clear existing carousel items
-          if (_Carousel.default) {
+          if (_Carousel.default && typeof _Carousel.default.clear === 'function') {
             _Carousel.default.clear();
           }
 
@@ -54742,46 +54749,62 @@ function _handleBreedSelect() {
           });
         case 5:
           response = _context2.sent;
-          _context2.next = 8;
+          console.log(response);
+
+          // error troubleshooting
+          if (response.ok) {
+            _context2.next = 9;
+            break;
+          }
+          throw new Error("breed ID fetch not working: ".concat(response.status, " ").concat(response.statusText));
+        case 9:
+          _context2.next = 11;
           return response.json();
-        case 8:
+        case 11:
           imageData = _context2.sent;
           // update carousel with new images
           imageData.forEach(function (image) {
-            console.log("hi");
             var carouselItem = _Carousel.default.createCarouselItem(image.url, image.breed, image.id);
             _Carousel.default.appendCarousel(carouselItem);
           });
 
           // update infoDump with breed information
-          _context2.next = 12;
+          _context2.next = 15;
           return fetch("".concat(baseURL, "/v1/breeds/").concat(breedId), {
             headers: header
           });
-        case 12:
-          breedInfoResponse = _context2.sent;
-          _context2.next = 15;
-          return breedInfoResponse.json();
         case 15:
+          breedInfoResponse = _context2.sent;
+          console.log(breedInfoResponse);
+
+          // error troubleshooting
+          if (breedInfoResponse.ok) {
+            _context2.next = 19;
+            break;
+          }
+          throw new Error("breed info response fetch not working: ".concat(response.status, " ").concat(response.statusText));
+        case 19:
+          _context2.next = 21;
+          return breedInfoResponse.json();
+        case 21:
           breedData = _context2.sent;
           // Create HTML structure for breed infomation
-          _infoDump = document.getElementById('infoDump');
-          _infoDump.innerHTML = "\n      <h2>".concat(breedData.name, "</h2>\n      <p>").concat(breedData.description, "</p>\n      <p>Temperament: ").concat(breedData.temperament, "</p>\n      <p>Origin: ").concat(breedData.origin, "</p>\n    ");
-          _context2.next = 23;
+          infoDump.innerHTML = "\n      <h2>".concat(breedData.name, "</h2>\n      <p>").concat(breedData.description, "</p>\n      <p>Temperament: ").concat(breedData.temperament, "</p>\n      <p>Origin: ").concat(breedData.origin, "</p>\n    ");
+          _context2.next = 28;
           break;
-        case 20:
-          _context2.prev = 20;
+        case 25:
+          _context2.prev = 25;
           _context2.t0 = _context2["catch"](0);
           console.error("Error in selection:", _context2.t0);
-        case 23:
+        case 28:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 20]]);
+    }, _callee2, null, [[0, 25]]);
   }));
-  return _handleBreedSelect.apply(this, arguments);
+  return _handleBreedSelection.apply(this, arguments);
 }
-breedSelect.addEventListener('change', handleBreedSelect);
+breedSelect.addEventListener('change', handleBreedSelection);
 
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
@@ -54903,7 +54926,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42995" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38797" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
